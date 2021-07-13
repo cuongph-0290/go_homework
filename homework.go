@@ -59,17 +59,14 @@ func (t *Temperature) ShowData() string {
 func handler(w http.ResponseWriter, r *http.Request) {
 	city := r.URL.Path[1:]
 
-	searchUrl := fmt.Sprintf("https://www.google.com/search?q=weacther+%s", city)
+	searchUrl := fmt.Sprintf("https://www.google.com/search?q=weather+%s+city", city)
 	page := rod.New().MustConnect().MustPage(searchUrl)
 
 	temprature := make(chan Temperature);
 
-	_, err := page.Element("div.wob_df:nth-child(1) > div:nth-child(1)")
-
-	if err != nil {
-		// I just follow error handling document but it not working
+	page.Race().Element(".std").MustHandle(func(e *rod.Element) {
 		fmt.Fprintf(w, "City not found")
-	} else {
+	}).Element("div.wob_df:nth-child(1) > div:nth-child(1)").MustHandle(func(e *rod.Element) {
 		fmt.Fprintf(w, fmt.Sprintf("The weather of %s next 8 days \n", city))
 
 		for i := 1; i <= 8; i ++ {
@@ -80,7 +77,8 @@ func handler(w http.ResponseWriter, r *http.Request) {
 			t := <- temprature
 			fmt.Fprintf(w, t.ShowData())
 		}
-	}
+	}).MustDo()
+
 }
 
 func GetPort() string {
