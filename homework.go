@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"log"
 	"net/http"
 
@@ -72,7 +73,14 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func GetPort() string {
+	if len(os.Args) == 1 {
+		return "8080"
+	}
+	return os.Args[1]
+}
+
 func main() {
 	http.HandleFunc("/", handler)
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", GetPort()), nil))
 }
