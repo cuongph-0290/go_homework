@@ -30,17 +30,20 @@ type Temperature struct {
 	MaxTemp string
 }
 
-func (t *Temperature) GetData(page *rod.Page, i int) {
+func GetData(page *rod.Page, i int, t chan Temperature) {
+	var temprature Temperature
 	var selector string
 
 	selector = fmt.Sprintf("div.wob_df:nth-child(%d) > div:nth-child(1)", i)
-	t.Day = page.MustElement(selector).MustText()
+	temprature.Day = page.MustElement(selector).MustText()
 
 	selector = fmt.Sprintf("div.wob_df:nth-child(%d) > div:nth-child(3) > div:nth-child(1) > span:nth-child(1)", i)
-	t.MaxTemp = page.MustElement(selector).MustText()
+	temprature.MaxTemp = page.MustElement(selector).MustText()
 
 	selector = fmt.Sprintf("div.wob_df:nth-child(%d) > div:nth-child(3) > div:nth-child(2) > span:nth-child(1)", i)
-	t.MinTemp = page.MustElement(selector).MustText()
+	temprature.MinTemp = page.MustElement(selector).MustText()
+
+	t <- temprature
 }
 
 func (t *Temperature) ShowData() string {
@@ -55,7 +58,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	searchUrl := fmt.Sprintf("https://www.google.com/search?q=weacther+%s", city)
 	page := rod.New().MustConnect().MustPage(searchUrl)
 
-	temperatures := make([]Temperature, 8)
+	temprature := make(chan Temperature);
 
 	_, err := page.Element("div.wob_df:nth-child(1) > div:nth-child(1)")
 
@@ -66,9 +69,10 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, fmt.Sprintf("The weather of %s next 8 days \n", city))
 
 		for i := 1; i <= 8; i ++ {
-			temperatures[i - 1].GetData(page, i)
+			go GetData(page, i, temprature)
 
-			fmt.Fprintf(w, temperatures[i - 1].ShowData())
+			t := <- temprature
+			fmt.Fprintf(w, t.ShowData())
 		}
 	}
 }
@@ -77,6 +81,7 @@ func GetPort() string {
 	if len(os.Args) == 1 {
 		return "8080"
 	}
+
 	return os.Args[1]
 }
 
