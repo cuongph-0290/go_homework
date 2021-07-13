@@ -74,7 +74,9 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 		for i := 1; i <= 8; i ++ {
 			go GetData(page, i, temprature)
+		}
 
+		for i := 1; i <= 8; i ++ {
 			t := <- temprature
 			fmt.Fprintf(w, t.ShowData())
 		}
