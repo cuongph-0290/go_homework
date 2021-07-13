@@ -31,22 +31,24 @@ type TemperatureRange struct {
 
 type Temperature struct {
 	Day string
-	TRange TemperatureRange
+	TRange *TemperatureRange
 }
 
 func GetData(page *rod.Page, i int, t chan Temperature) {
 	var temprature Temperature
+	var tRange TemperatureRange
 	var selector string
 
 	selector = fmt.Sprintf("div.wob_df:nth-child(%d) > div:nth-child(1)", i)
 	temprature.Day = page.MustElement(selector).MustText()
 
 	selector = fmt.Sprintf("div.wob_df:nth-child(%d) > div:nth-child(3) > div:nth-child(1) > span:nth-child(1)", i)
-	temprature.TRange.MaxTemp = page.MustElement(selector).MustText()
+	tRange.MaxTemp = page.MustElement(selector).MustText()
 
 	selector = fmt.Sprintf("div.wob_df:nth-child(%d) > div:nth-child(3) > div:nth-child(2) > span:nth-child(1)", i)
-	temprature.TRange.MinTemp = page.MustElement(selector).MustText()
+	tRange.MinTemp = page.MustElement(selector).MustText()
 
+	temprature.TRange = &tRange
 	t <- temprature
 }
 
@@ -62,7 +64,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	searchUrl := fmt.Sprintf("https://www.google.com/search?q=weather+%s+city", city)
 	page := rod.New().MustConnect().MustPage(searchUrl)
 
-	temprature := make(chan Temperature);
+	temprature := make(chan Temperature)
 
 	page.Race().Element(".std").MustHandle(func(e *rod.Element) {
 		fmt.Fprintf(w, "City not found")
