@@ -24,10 +24,14 @@ import (
 // Th 2  | max: 33°C, min: 24°C
 // Th 3  | max: 33°C, min: 24°C
 
-type Temperature struct {
-	Day string
+type TemperatureRange struct {
 	MinTemp string
 	MaxTemp string
+}
+
+type Temperature struct {
+	Day string
+	TRange TemperatureRange
 }
 
 func GetData(page *rod.Page, i int, t chan Temperature) {
@@ -38,10 +42,10 @@ func GetData(page *rod.Page, i int, t chan Temperature) {
 	temprature.Day = page.MustElement(selector).MustText()
 
 	selector = fmt.Sprintf("div.wob_df:nth-child(%d) > div:nth-child(3) > div:nth-child(1) > span:nth-child(1)", i)
-	temprature.MaxTemp = page.MustElement(selector).MustText()
+	temprature.TRange.MaxTemp = page.MustElement(selector).MustText()
 
 	selector = fmt.Sprintf("div.wob_df:nth-child(%d) > div:nth-child(3) > div:nth-child(2) > span:nth-child(1)", i)
-	temprature.MinTemp = page.MustElement(selector).MustText()
+	temprature.TRange.MinTemp = page.MustElement(selector).MustText()
 
 	t <- temprature
 }
@@ -49,7 +53,7 @@ func GetData(page *rod.Page, i int, t chan Temperature) {
 func (t *Temperature) ShowData() string {
 	day := fmt.Sprintf("%s     ", t.Day)
 
-	return fmt.Sprintf("%s | max: %s°C, min: %s°C\n", day[0: 5], t.MaxTemp, t.MinTemp)
+	return fmt.Sprintf("%s | max: %s°C, min: %s°C\n", day[0: 5], t.TRange.MaxTemp, t.TRange.MinTemp)
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
