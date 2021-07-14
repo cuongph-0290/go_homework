@@ -1,12 +1,10 @@
 package main
 
 import (
-	// "fmt"
 	"log"
 	"net/http"
 
 	"github.com/spf13/viper"
-	// "github.com/go-rod/rod"
 
 	_temperatureHandler "github.com/cuongph-0290/go_homework/temperature/delivery/http"
 )
