@@ -3,10 +3,11 @@ package repository
 import (
 	"fmt"
 
-	"github.com/go-rod/rod"
 	"github.com/cuongph-0290/go_homework/domain"
+	"github.com/go-rod/rod"
 )
 
+// GetData will get day, min, max temperature from page
 func GetData(page *rod.Page, i int, t chan domain.Temperature) {
 	var temprature domain.Temperature
 	var tRange domain.TemperatureRange
@@ -25,8 +26,9 @@ func GetData(page *rod.Page, i int, t chan domain.Temperature) {
 	t <- temprature
 }
 
+// ShowData will show content of temperature object
 func ShowData(t domain.Temperature) string {
 	day := fmt.Sprintf("%s     ", t.Day)
 
-	return fmt.Sprintf("%s | max: %s°C, min: %s°C\n", day[0: 5], t.TRange.MaxTemp, t.TRange.MinTemp)
+	return fmt.Sprintf("%s | max: %s°C, min: %s°C\n", day[0:5], t.TRange.MaxTemp, t.TRange.MinTemp)
 }
