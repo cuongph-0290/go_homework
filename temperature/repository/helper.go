@@ -5,10 +5,32 @@ import (
 
 	"github.com/cuongph-0290/go_homework/domain"
 	"github.com/go-rod/rod"
+	"github.com/spf13/viper"
 )
 
+// GetTemps will get list temperature
+func GetTemps(city string) []domain.Temperature {
+	nextDay := viper.GetInt("nextDay") | 8
+
+	searchURL := fmt.Sprintf("https://www.google.com/search?q=weather+%s+city", city)
+	page := rod.New().MustConnect().MustPage(searchURL)
+
+	defer page.MustClose()
+
+	ts := []domain.Temperature{}
+
+	page.Race().Element(".std").MustHandle(func(e *rod.Element) {
+	}).Element("div.wob_df:nth-child(1) > div:nth-child(1)").MustHandle(func(e *rod.Element) {
+		for i := 1; i <= nextDay; i++ {
+			ts = append(ts, GetData(page, i))
+		}
+	}).MustDo()
+
+	return ts
+}
+
 // GetData will get day, min, max temperature from page
-func GetData(page *rod.Page, i int, t chan domain.Temperature) {
+func GetData(page *rod.Page, i int) domain.Temperature {
 	var temprature domain.Temperature
 	var tRange domain.TemperatureRange
 	var selector string
@@ -23,7 +45,8 @@ func GetData(page *rod.Page, i int, t chan domain.Temperature) {
 	tRange.MinTemp = page.MustElement(selector).MustText()
 
 	temprature.TRange = &tRange
-	t <- temprature
+
+	return temprature
 }
 
 // ShowData will show content of temperature object
