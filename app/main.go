@@ -38,5 +38,6 @@ func init() {
 
 func main() {
 	http.HandleFunc("/city/", _temperatureHandler.Handler)
+	http.Handle("/", http.FileServer(http.Dir("./")))
 	log.Fatal(http.ListenAndServe(viper.GetString("server.port"), nil))
 }
