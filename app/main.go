@@ -4,9 +4,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/spf13/viper"
-
 	_temperatureHandler "github.com/cuongph-0290/go_homework/temperature/delivery/http"
+	"github.com/spf13/viper"
 )
 
 // My home work target is get tempratures on next 8 days of city
@@ -38,6 +37,6 @@ func init() {
 }
 
 func main() {
-	http.HandleFunc("/", _temperatureHandler.Handler)
+	http.HandleFunc("/city/", _temperatureHandler.Handler)
 	log.Fatal(http.ListenAndServe(viper.GetString("server.port"), nil))
 }
