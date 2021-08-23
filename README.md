@@ -25,7 +25,7 @@ npm install
 
 Compiler client.js
 ```
-npm weppack client.js
+npx webpack client.js
 ```
 
 Run temperature server

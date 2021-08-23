@@ -1,4 +1,4 @@
-package domain
+package entities
 
 // TemperatureRange is temperature range, it has MinTemp, MaxTemp fields
 type TemperatureRange struct {

@@ -3,13 +3,13 @@ package repository
 import (
 	"fmt"
 
-	"github.com/cuongph-0290/go_homework/domain"
+	"github.com/cuongph-0290/go_homework/entities"
 	"github.com/go-rod/rod"
 	"github.com/spf13/viper"
 )
 
 // GetTemps will get list temperature
-func GetTemps(city string) []domain.Temperature {
+func GetTemps(city string) []entities.Temperature {
 	nextDay := viper.GetInt("nextDay") | 8
 
 	searchURL := fmt.Sprintf("https://www.google.com/search?q=weather+%s+city", city)
@@ -17,7 +17,7 @@ func GetTemps(city string) []domain.Temperature {
 
 	defer page.MustClose()
 
-	ts := []domain.Temperature{}
+	ts := []entities.Temperature{}
 
 	page.Race().Element(".std").MustHandle(func(e *rod.Element) {
 	}).Element("div.wob_df:nth-child(1) > div:nth-child(1)").MustHandle(func(e *rod.Element) {
@@ -30,9 +30,9 @@ func GetTemps(city string) []domain.Temperature {
 }
 
 // GetData will get day, min, max temperature from page
-func GetData(page *rod.Page, i int) domain.Temperature {
-	var temprature domain.Temperature
-	var tRange domain.TemperatureRange
+func GetData(page *rod.Page, i int) entities.Temperature {
+	var temprature entities.Temperature
+	var tRange entities.TemperatureRange
 	var selector string
 
 	selector = fmt.Sprintf("div.wob_df:nth-child(%d) > div:nth-child(1)", i)
@@ -50,7 +50,7 @@ func GetData(page *rod.Page, i int) domain.Temperature {
 }
 
 // ShowData will show content of temperature object
-func ShowData(t domain.Temperature) string {
+func ShowData(t entities.Temperature) string {
 	day := fmt.Sprintf("%s     ", t.Day)
 
 	return fmt.Sprintf("%s | max: %s°C, min: %s°C\n", day[0:5], t.TRange.MaxTemp, t.TRange.MinTemp)
